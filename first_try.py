@@ -1,27 +1,9 @@
 import pandas as pd
+import pprint
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 
-
-"""
-Step 1:
-Программа для чтения csv/xls файла:
-Функция ввода ссылки на файл                                                       done
-Первый столбец (индекс) - дата в формате "дд.мм.гггг чч:мм"                        done
-Второй столбец - температура за определенный час.                                  done
-
-Что нужно реализовать: 
-1.1 Первая колонка в виде датафрейма                                               done
-1.2 Избавиться от часов                                                            done
-1.3 Вычислить средниесуточные                                                      done
-1.4 Начальная и конечные даты рассматриваемого периода                             done                             
-1.5. Проанализировать сколько пропущенных ячеек(дней)!                             done
-1.6. Вывести даты без значений                                                     
-2. Заполнить пропущенные ячейки средним значением за день
-(или посчитать среднее значение за день без учета пропущенных значений)
-3. Сгруппировать по дням со среденей темпераутрой за день.                         done
-4.1 Разбить наблюдения по годам. 
-4.2. Визуализация температур, например, за конкретный год.
-"""
 r"C:\Users\Eugene\Downloads\data1.xls"
 
 #link = input("Введите ссылку на интересующий файл:")
@@ -44,14 +26,24 @@ numbers_of_missing_days = ((end_chain - start_chain).days) - len(T_meanday)     
 numbers_of_missing_days_with_desc = f"Количество пропущенных дней временной последовательности " \
                                     f"{numbers_of_missing_days}"
 
-t = T_meanday["T"].values.tolist()
+#t = T_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
 T_meanday["dates"] = T_meanday.index
 
-list_of_dates = T_meanday["dates"].astype(str).tolist()
-list_of_dates = set(list_of_dates)
-#print(t)                                                                                     # проверка что все значения в индексе одинаковые
+list_of_dates = set(T_meanday["dates"].astype(str).tolist())                                                # создали множество с датами с температурой
+fact_list_of_dates = set(pd.date_range(start=start_chain, end=end_chain).astype(str))
+missing_dates = list(fact_list_of_dates - list_of_dates)
+missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
+
+list_of_missing_dates = list(missing_dates.astype(str).tolist())                                            # Список с датами для которых нет измерений температуры
+#list_of_missing_dates = missing_dates.values.tolist()
+T_meanday.drop(columns="dates", inplace=True)                                                               # удаляем уже ненужный столбец  с датами
+#print(fact_list_of_dates)
+#list_of_dates = set(list_of_dates)
+#print(T_meanday.head())                                                                                     # проверка что все значения в индексе одинаковые
 #print(list_of_dates)
-print(list_of_dates)
+#print(list_of_dates)
+print(len(list_of_missing_dates))
+pprint.pprint(list_of_missing_dates)
 
 
 #print(T_meanday.head())                временно закоментить
