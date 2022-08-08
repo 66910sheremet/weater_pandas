@@ -1,5 +1,6 @@
 import pandas as pd
 import pprint
+import time
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -48,7 +49,8 @@ class Processing:
         #print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
         #print(list_of_dates)
         #print(list_of_dates)
-
+        end = time.time()
+        print(end - start)
 
         #print(T_meanday.head())
         print(start_chain_with_desc)
