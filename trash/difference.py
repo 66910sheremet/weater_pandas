@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 #link = input("Введите ссылку на интересующий файл:")
 #link_input = input("Введите ссылку на интересующий файл:")
 #link = link_input.replace("\\","/")
-data = pd.read_excel(r"C:\Users\Eugene\Downloads\data1.xls")
 
-# открываем файл на чтение
+data = pd.read_excel(r"C:\Users\Eugene\Downloads\data1.xls")                                                         # открываем файл на чтение
+
 T2005_2022 = data[["data","T"]]                                                                                     # забираем 2 колонки с датой и температурой
 test2005_2022 = T2005_2022                                                                                          # пока что тестировочный файлик
+
 test2005_2022["data"] = pd.to_datetime(test2005_2022["data"], format="%d.%m.%Y %H:%M").dt.date                      # приводим столбец с датами в формат dataframe и сразу удаляем часы и минуты
 T_meanday = test2005_2022.groupby("data").agg({"T":"mean"})                                                         # считаем среднюю температуру по дням / автоматическая сортировка по дате с ранней
 #print(test2005_2022.head()
@@ -30,14 +31,15 @@ total_cols_with_desc = f"Фактическое количество дней с
 numbers_of_missing_days = ((end_chain - start_chain).days) - len(T_meanday)                                         # количество пропущенных дней временной последовательности
 numbers_of_missing_days_with_desc = f"Количество пропущенных дней временной последовательности " \
                                 f"{numbers_of_missing_days}"
+
 #t = T_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
 T_meanday["dates"] = T_meanday.index
-list_of_dates = list(T_meanday["dates"].astype(str).tolist())                                                        # создали множество с датами с температурой
-fact_list_of_dates = list(pd.date_range(start=start_chain, end=end_chain).astype(str))
 
-missing_dates = [x for x in list_of_dates + fact_list_of_dates if x not in list_of_dates or x not in fact_list_of_dates]
-
+list_of_dates = set(T_meanday["dates"].astype(str).tolist())                                                        # создали множество с датами с температурой
+fact_list_of_dates = set(pd.date_range(start=start_chain, end=end_chain).astype(str))
+missing_dates = list(set.difference(fact_list_of_dates, list_of_dates))
 missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
+start = time.time()
 list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                    # список с датами для которых нет измерений температуры
 lenth_of_list_of_missing_dates = len(list_of_missing_dates)
 #list_of_missing_dates = missing_dates.values.tolist()
@@ -47,6 +49,7 @@ T_meanday.drop(columns="dates", inplace=True)                                   
 #print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
 #print(list_of_dates)
 #print(list_of_dates
+
 #print(T_meanday.head())
 print(start_chain_with_desc)
 print(end_chain_with_desc)
@@ -60,4 +63,5 @@ print(f"Количество дней с пропущенными данными
 pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
 #T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
 #plt.show()
+
 

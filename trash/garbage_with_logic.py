@@ -12,7 +12,7 @@ T2005_2022 = data[["data","T"]]                                                 
 test2005_2022 = T2005_2022                                                                                               # пока что тестировочный файлик
 test2005_2022["data"] = pd.to_datetime(test2005_2022["data"], format="%d.%m.%Y %H:%M").dt.date                           # приводим столбец с датами в формат dataframe и сразу удаляем часы и минуты
 T_meanday = test2005_2022.groupby("data").agg({"T":"mean"})                                                              # считаем среднюю температуру по дням / автоматическая сортировка по дате с ранней
-#print(test2005_2022.head())
+print(test2005_2022.head())
 
 start_chain = T_meanday.index[0]                                                                                         # начальная дата исследуемого периода
 end_chain = T_meanday.index[-1]                                                                                          # конечная дата исследуемого периода

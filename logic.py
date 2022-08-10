@@ -1,6 +1,6 @@
 import pandas as pd
 import pprint
-import time
+pd.options.mode.chained_assignment = None
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -33,24 +33,23 @@ class Processing:
                                         f"{numbers_of_missing_days}"
 
         #t = T_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
-        T_meanday["dates"] = T_meanday.index
-
-        list_of_dates = set(T_meanday["dates"].astype(str).tolist())                                                        # создали множество с датами с температурой
-        fact_list_of_dates = set(pd.date_range(start=start_chain, end=end_chain).astype(str))
-        missing_dates = list(fact_list_of_dates - list_of_dates)
+        T_meanday["0"] = T_meanday.index
+        list_of_dates = pd.DataFrame(T_meanday["0"]).reset_index()
+        list_of_dates = list_of_dates.drop(columns="data")
+        list_of_dates["0"] = pd.to_datetime(list_of_dates["0"])
+        fact_list_of_dates = pd.date_range(start=start_chain, end=end_chain)
+        # fact_list_of_dates1 = fact_list_of_dates1.loc[~fact_list_of_dates1["0"].isin(list_of_dates)]
+        # start = time.time()
+        missing_dates = fact_list_of_dates.difference(list_of_dates["0"])
         missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
-
-        list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                    # список с датами для которых нет измерений температуры
+        list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                                    # удаляем уже ненужный столбец  с датами
         lenth_of_list_of_missing_dates = len(list_of_missing_dates)
-        #list_of_missing_dates = missing_dates.values.tolist()
-        T_meanday.drop(columns="dates", inplace=True)                                                                       # удаляем уже ненужный столбец  с датами
         #print(fact_list_of_dates)
         #list_of_dates = set(list_of_dates)
         #print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
         #print(list_of_dates)
         #print(list_of_dates)
-        end = time.time()
-        print(end - start)
+
 
         #print(T_meanday.head())
         print(start_chain_with_desc)
