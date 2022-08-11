@@ -1,6 +1,8 @@
 import pandas as pd
 import pprint
 import time
+import numpy as np
+from numpy import array, hstack, vstack
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -33,33 +35,45 @@ numbers_of_missing_days_with_desc = f"Количество пропущенны�
 #t = T_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
 
 T_meanday["dates"] = T_meanday.index
-list_of_dates = list(T_meanday["dates"].astype(str).tolist())                                                        # создали множество с датами с температурой
-fact_list_of_dates = list(pd.date_range(start=start_chain, end=end_chain).astype(str))
+list_of_dates = np.array(T_meanday["dates"].astype(str).tolist())                                                        # создали множество с датами с температурой
+fact_list_of_dates = np.array(pd.date_range(start=start_chain, end=end_chain).astype(str))
+#common_list = list_of_dates
+#common_list.extend(fact_list_of_dates)
 start = time.time()
-missing_dates = [x for x in fact_list_of_dates if x not in list_of_dates]
+missing_dates = fact_list_of_dates -list_of_dates
+a = np.sort(missing_dates)
 end = time.time()
-print(end - start)
-missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
-list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                    # список с датами для которых нет измерений температуры
-lenth_of_list_of_missing_dates = len(list_of_missing_dates)
-#list_of_missing_dates = missing_dates.values.tolist()
-T_meanday.drop(columns="dates", inplace=True)                                                                       # удаляем уже ненужный столбец  с датами
-#print(fact_list_of_dates)
-#list_of_dates = set(list_of_dates)
-#print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
-#print(list_of_dates)
-#print(list_of_dates
-#print(T_meanday.head())
-print(start_chain_with_desc)
-print(end_chain_with_desc)
-print(days_with_temp_with_desc)
-print(total_cols_with_desc)
-print(numbers_of_missing_days_with_desc)
-#test2005_2022.sort_index(inplace=True)
-#print(test2005_2022.index[-1])
-#print(test2005_2022.head())
-print(f"Количество дней с пропущенными данными: {lenth_of_list_of_missing_dates}")
-pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
-#T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
-#plt.show()
+#print(end - start)
+#print(len(missing_dates))
+#print(missing_dates)
+print(a)
+print(len(a))
+print(len(np.unique(a)))
+
+#print(len(np.unique(common_list)))
+#print(common_list)
+#print(len(missing_dates))
+#missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
+#list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                    # список с датами для которых нет измерений температуры
+#lenth_of_list_of_missing_dates = len(list_of_missing_dates)
+##list_of_missing_dates = missing_dates.values.tolist()
+#T_meanday.drop(columns="dates", inplace=True)                                                                       # удаляем уже ненужный столбец  с датами
+##print(fact_list_of_dates)
+##list_of_dates = set(list_of_dates)
+##print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
+##print(list_of_dates)
+##print(list_of_dates
+##print(T_meanday.head())
+#print(start_chain_with_desc)
+#print(end_chain_with_desc)
+#print(days_with_temp_with_desc)
+#print(total_cols_with_desc)
+#print(numbers_of_missing_days_with_desc)
+##test2005_2022.sort_index(inplace=True)
+##print(test2005_2022.index[-1])
+##print(test2005_2022.head())
+#print(f"Количество дней с пропущенными данными: {lenth_of_list_of_missing_dates}")
+#pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
+##T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
+##plt.show()
 
