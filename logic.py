@@ -72,4 +72,14 @@ class Processing:
         self.T_meanday["T"].to_excel(f"{name_of_set_mean_temp}.xlsx")
         print("Файл сохранен!")
 
+    def get_average_monthly_temperature(self):
+        t_meanday_for_month = pd.DataFrame(self.T_meanday["T"])
+        t_meanday_for_month.index = pd.to_datetime(t_meanday_for_month.index)
+        self.average_monthly_temperature = t_meanday_for_month.resample("M").mean()
+        print(self.average_monthly_temperature)
 
+    def save_dataset_average_monthly_temperature(self):
+        self.average_monthly_temperature = pd.DataFrame(self.average_monthly_temperature)
+        name_of_average_monthly_temperature = input("Введите название файла для сохранения:")
+        self.average_monthly_temperature.to_excel(f"{name_of_average_monthly_temperature}.xlsx")
+        print("Файл сохранен!")

@@ -11,6 +11,15 @@ work.preliminary_processing()
 print("Для сохрания датасета с усредненной температурой, введите 1")
 print("Для сохранения датасета из дат без данных, введите 2")
 print("Для дальнейшей обработки введите 3")
+print("Для вывода списка со среднемесячными температурами введите 4")
 choice = input("Enter your choice:")
 if choice == "1":
     work.save_dataset_mean_temp()
+elif choice == "4":
+    work.get_average_monthly_temperature()
+    print("Сохранить датасет со среднемесячными температурами: Y/N")
+    choice_save_ma = input("Enter your choice:")
+    if choice_save_ma == "Y":
+        work.save_dataset_average_monthly_temperature()
+    elif choice_save_ma == "N":
+        print("New operations")
