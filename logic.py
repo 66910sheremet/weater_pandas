@@ -1,7 +1,7 @@
 import pandas as pd
 import pprint
 from statistics import mean
-from datetime import date
+import datetime
 import openpyxl
 pd.options.mode.chained_assignment = None
 
@@ -102,6 +102,7 @@ class Processing:
         day_date_plus_temp = pd.DataFrame(self.t_mean_day["T"])
         prepare_start_heating_date = pd.to_datetime(input("Введите начальную дату обработки отопительного периода в формате гггг-мм-дд:"))
         prepare_end_heating_date = pd.to_datetime(input("Введите конечную дату обработки отопительного периода в формате гггг-мм-дд:"))
+        # исследуемый диапазон измерений отопительного периода (по умолчанию с 1 сентября по 1 июня)
         interesting_heating_period = day_date_plus_temp.loc[prepare_start_heating_date:prepare_end_heating_date]
         interesting_heating_period.reset_index(inplace=True)
         list_temp = interesting_heating_period["T"].values.tolist()
@@ -122,10 +123,33 @@ class Processing:
 
         ds_real_start_heating_date = interesting_heating_period.loc[(interesting_heating_period.average_five_day_temperature < 8)]
         real_start_heating_date = ds_real_start_heating_date.iloc[4, 0]
+        real_start_heating_date_with_desc = f"Дата начала отопительного периода согласно законодательству:" \
+                                            f"{real_start_heating_date}"
 
-        print(interesting_heating_period)
-        print(ds_real_start_heating_date)
-        print(real_start_heating_date)
+        help_end_heating_date = pd.to_datetime(prepare_end_heating_date - pd.DateOffset(months=3))
+        interesting_heating_period["data"] = pd.to_datetime(interesting_heating_period["data"])
+        interesting_heating_period = interesting_heating_period.set_index("data")
+        ds_real_end_heating_date = interesting_heating_period.loc[help_end_heating_date:prepare_end_heating_date]
+        #ds_real_end_heating_date = interesting_heating_period.query("@help_end_heating_date < 'data'<  @prepare_end_heating_date")
+        add_ds_real_end_heating_date = ds_real_end_heating_date.loc[(ds_real_end_heating_date.average_five_day_temperature > 8)].reset_index()
+        real_end_heating_date = add_ds_real_end_heating_date.loc[0,'data']
+        #real_end_heating_date_with_desc = f"Дата начала отопительного периода согласно законодательству:" \
+        #                                  f"{real_end_heating_date}"
+
+        #print(interesting_heating_period)
+        #print(interesting_heating_period.info())
+        #print(ds_real_start_heating_date)
+        #print(real_start_heating_date_with_desc)
+        print(ds_real_end_heating_date)
+        #print(type(help_end_heating_date))
+        #print(type(prepare_end_heating_date))
+        print(help_end_heating_date)
+        print(prepare_end_heating_date)
+        print(add_ds_real_end_heating_date)
+        print(real_end_heating_date)
+
+
+
 
         #print(list_temp)
         #print(list_five_temp)
