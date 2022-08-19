@@ -1,42 +1,54 @@
 import pandas as pd
 import pprint
+from statistics import mean
+from datetime import date
 import openpyxl
 pd.options.mode.chained_assignment = None
 
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-#C:\Users\Eugene\Downloads\data1.xls пример ссылки
+# C:\Users\Eugene\Downloads\data1.xls пример ссылки
 
 
 class Processing:
 
-    def preliminary_processing(self):
-        #link = input("Введите ссылку на интересующий файл:")
-        link_input = input("Введите ссылку на интересующий файл:")
-        link = link_input.replace("\\","/")
-        data = pd.read_excel(link)                                                                                          # открываем файл на чтение
-        T2005_2022 = data[["data","T"]]                                                                                     # забираем 2 колонки с датой и температурой
-        test2005_2022 = T2005_2022                                                                                          # пока что тестировочный файлик
-        test2005_2022["data"] = pd.to_datetime(test2005_2022["data"], format="%d.%m.%Y %H:%M").dt.date                      # приводим столбец с датами в формат dataframe и сразу удаляем часы и минуты
-        self.T_meanday = test2005_2022.groupby("data").agg({"T":"mean"})                                                         # считаем среднюю температуру по дням / автоматическая сортировка по дате с ранней
-        #print(test2005_2022.head())
+    def __init__(self, t_mean_day=0, average_monthly_temperature=0):
+        self.t_mean_day = t_mean_day
+        self.average_monthly_temperature = average_monthly_temperature
 
-        start_chain = self.T_meanday.index[0]                                                                                    # начальная дата исследуемого периода
-        end_chain = self.T_meanday.index[-1]                                                                                     # конечная дата исследуемого периода
-        start_chain_with_desc = f"Начальная дата исследуемого периода: {self.T_meanday.index[0]}"
-        end_chain_with_desc = f"Конечная дата исследуемого периода: {self.T_meanday.index[-1]}"
-        days_with_temp = (end_chain - start_chain)                                                                          # количество дней между начальной и конечной датами
+    def preliminary_processing(self):
+        # link = input("Введите ссылку на интересующий файл:")
+        link_input = input("Введите ссылку на интересующий файл:")
+        link = link_input.replace("\\", "/")
+        # open file for reading
+        data = pd.read_excel(link)
+        # pick up 2 columns with date and temperature
+        t2005_2022 = data[["data", "T"]]
+        # test file
+        test2005_2022 = t2005_2022
+        # we bring the column with dates into the dataframe format and immediately delete the hours and minutes
+        test2005_2022["data"] = pd.to_datetime(test2005_2022["data"], format="%d.%m.%Y %H:%M").dt.date
+        # calculate the average temperature by day / automatic sorting by date from the earliest
+        self.t_mean_day = test2005_2022.groupby("data").agg({"T": "mean"})
+        # print(test2005_2022.head())
+
+        start_chain = self.t_mean_day.index[0]  # start date of the study period
+        end_chain = self.t_mean_day.index[-1] # end date of the study period
+        start_chain_with_desc = f"Начальная дата исследуемого периода: {self.t_mean_day.index[0]}"
+        end_chain_with_desc = f"Конечная дата исследуемого периода: {self.t_mean_day.index[-1]}"
+        days_with_temp = (end_chain - start_chain)  # number of days between start and end dates
         days_with_temp_with_desc = f"Количество дней между начальной и конечной датами: {days_with_temp.days} дней"
-        total_cols = len(self.T_meanday)                                                                                         # фактическое количество дней с данными по температуре
+        total_cols = len(self.t_mean_day)  # actual number of days with temperature data
         total_cols_with_desc = f"Фактическое количество дней с данными по температуре: {total_cols} дней"
-        numbers_of_missing_days = ((end_chain - start_chain).days) - len(self.T_meanday)                                         # количество пропущенных дней временной последовательности
+        # number of missed days in the time sequence
+        numbers_of_missing_days = ((end_chain - start_chain).days) - len(self.t_mean_day)
         numbers_of_missing_days_with_desc = f"Количество пропущенных дней временной последовательности " \
                                         f"{numbers_of_missing_days}"
 
-        #t = T_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
-        self.T_meanday["0"] = self.T_meanday.index
-        list_of_dates = pd.DataFrame(self.T_meanday["0"]).reset_index()
+        # t = t_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
+        self.t_mean_day["0"] = self.t_mean_day.index
+        list_of_dates = pd.DataFrame(self.t_mean_day["0"]).reset_index()
         list_of_dates = list_of_dates.drop(columns="data")
         list_of_dates["0"] = pd.to_datetime(list_of_dates["0"])
         fact_list_of_dates = pd.date_range(start=start_chain, end=end_chain)
@@ -44,12 +56,14 @@ class Processing:
         # start = time.time()
         missing_dates = fact_list_of_dates.difference(list_of_dates["0"])
         missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
-        list_of_missing_dates = list(missing_dates.astype(str).tolist())                                                                    # удаляем уже ненужный столбец  с датами
+        # delete an already unnecessary column with dates
+        list_of_missing_dates = list(missing_dates.astype(str).tolist())
         lenth_of_list_of_missing_dates = len(list_of_missing_dates)
         #print(fact_list_of_dates)
+        # checking that all values in an index are the same
         #list_of_dates = set(list_of_dates)
-        #print(T_meanday.head())                                                                                            # проверка что все значения в индексе одинаковые
-        print(self.T_meanday["T"])
+        #print(T_meanday.head())
+        print(self.t_mean_day["T"])
 
 
         #print(T_meanday.head())
@@ -64,18 +78,18 @@ class Processing:
         #print(test2005_2022.head())
         print(f"Количество дней с пропущенными данными: {lenth_of_list_of_missing_dates}")
         pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
-        #self.T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
-        #plt.show()
+        # self.T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
+        # plt.show()
 
     def save_dataset_mean_temp(self):
         name_of_set_mean_temp = input("Введите название файла для сохранения:")
-        self.T_meanday["T"].to_excel(f"{name_of_set_mean_temp}.xlsx")
+        self.t_mean_day["T"].to_excel(f"{name_of_set_mean_temp}.xlsx")
         print("Файл сохранен!")
 
     def get_average_monthly_temperature(self):
-        t_meanday_for_month = pd.DataFrame(self.T_meanday["T"])
-        t_meanday_for_month.index = pd.to_datetime(t_meanday_for_month.index)
-        self.average_monthly_temperature = t_meanday_for_month.resample("M").mean()
+        t_mean_day_for_month = pd.DataFrame(self.t_mean_day["T"])
+        t_mean_day_for_month.index = pd.to_datetime(t_mean_day_for_month.index)
+        self.average_monthly_temperature = t_mean_day_for_month.resample("M").mean()
         print(self.average_monthly_temperature)
 
     def save_dataset_average_monthly_temperature(self):
@@ -83,3 +97,40 @@ class Processing:
         name_of_average_monthly_temperature = input("Введите название файла для сохранения:")
         self.average_monthly_temperature.to_excel(f"{name_of_average_monthly_temperature}.xlsx")
         print("Файл сохранен!")
+
+    def heating_period_treatment(self):
+        day_date_plus_temp = pd.DataFrame(self.t_mean_day["T"])
+        prepare_start_heating_date = pd.to_datetime(input("Введите начальную дату обработки отопительного периода в формате гггг-мм-дд:"))
+        prepare_end_heating_date = pd.to_datetime(input("Введите конечную дату обработки отопительного периода в формате гггг-мм-дд:"))
+        interesting_heating_period = day_date_plus_temp.loc[prepare_start_heating_date:prepare_end_heating_date]
+        interesting_heating_period.reset_index(inplace=True)
+        list_temp = interesting_heating_period["T"].values.tolist()
+        list_five_temp = []
+        while list_temp:
+            list_five_temp.append(list_temp[:5])
+            del list_temp[:1]
+        mean_five_temp = []
+        for i in list_five_temp:
+            mean_five_temp.append(round(mean(i), 3))
+        mean_five_temp.insert(0, 0)
+        mean_five_temp.insert(0, 0)
+        mean_five_temp.insert(0, 0)
+        mean_five_temp.insert(0, 0)
+        mean_five_temp = mean_five_temp[:-4]
+
+        interesting_heating_period["average_five_day_temperature"] = mean_five_temp
+
+        ds_real_start_heating_date = interesting_heating_period.loc[(interesting_heating_period.average_five_day_temperature < 8)]
+        real_start_heating_date = ds_real_start_heating_date.iloc[4, 0]
+
+        print(interesting_heating_period)
+        print(ds_real_start_heating_date)
+        print(real_start_heating_date)
+
+        #print(list_temp)
+        #print(list_five_temp)
+        #print(mean_five_temp)
+        #print(day_date_plus_temp.info())
+        #print(str(start_heating_date))
+        #print(str(end_heating_date))
+

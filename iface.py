@@ -1,8 +1,8 @@
 from logic import Processing
-#import pprint
-#from datetime import datetime
+# import pprint
+# from datetime import datetime
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 r"C:\Users\Eugene\Downloads\data1.xls"
 
@@ -12,6 +12,7 @@ print("Для сохрания датасета с усредненной тем
 print("Для сохранения датасета из дат без данных, введите 2")
 print("Для дальнейшей обработки введите 3")
 print("Для вывода списка со среднемесячными температурами введите 4")
+print("Для обработки конкретного отопительного периода нижмите 5")
 choice = input("Enter your choice:")
 if choice == "1":
     work.save_dataset_mean_temp()
@@ -23,3 +24,7 @@ elif choice == "4":
         work.save_dataset_average_monthly_temperature()
     elif choice_save_ma == "N":
         print("New operations")
+elif choice == "5":
+    work.heating_period_treatment()
+
+
