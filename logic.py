@@ -1,12 +1,12 @@
 import pandas as pd
 import pprint
 from statistics import mean
-import datetime
-import openpyxl
+# import datetime
+# import openpyxl
 pd.options.mode.chained_assignment = None
 
-from datetime import datetime
-import matplotlib.pyplot as plt
+# from datetime import datetime
+# import matplotlib.pyplot as plt
 
 # C:\Users\Eugene\Downloads\data1.xls пример ссылки
 
@@ -42,11 +42,11 @@ class Processing:
         total_cols = len(self.t_mean_day)  # actual number of days with temperature data
         total_cols_with_desc = f"Фактическое количество дней с данными по температуре: {total_cols} дней"
         # number of missed days in the time sequence
-        numbers_of_missing_days = ((end_chain - start_chain).days) - len(self.t_mean_day)
+        numbers_of_missing_days = (end_chain - start_chain).days - len(self.t_mean_day)
         numbers_of_missing_days_with_desc = f"Количество пропущенных дней временной последовательности " \
                                         f"{numbers_of_missing_days}"
 
-        # t = t_meanday["T"].values.tolist() лист со значениями температуры (пока не нужен)
+        # t = t_mean_day["T"].values.tolist() лист со значениями температуры (пока не нужен)
         self.t_mean_day["0"] = self.t_mean_day.index
         list_of_dates = pd.DataFrame(self.t_mean_day["0"]).reset_index()
         list_of_dates = list_of_dates.drop(columns="data")
@@ -59,23 +59,23 @@ class Processing:
         # delete an already unnecessary column with dates
         list_of_missing_dates = list(missing_dates.astype(str).tolist())
         lenth_of_list_of_missing_dates = len(list_of_missing_dates)
-        #print(fact_list_of_dates)
+        # print(fact_list_of_dates)
         # checking that all values in an index are the same
-        #list_of_dates = set(list_of_dates)
-        #print(T_meanday.head())
+        # list_of_dates = set(list_of_dates)
+        # print(T_meanday.head())
         print(self.t_mean_day["T"])
 
 
-        #print(T_meanday.head())
+        # print(T_meanday.head())
         print(start_chain_with_desc)
         print(end_chain_with_desc)
         print(days_with_temp_with_desc)
         print(total_cols_with_desc)
         print(numbers_of_missing_days_with_desc)
 
-        #test2005_2022.sort_index(inplace=True)
-        #print(test2005_2022.index[-1])
-        #print(test2005_2022.head())
+        # test2005_2022.sort_index(inplace=True)
+        # print(test2005_2022.index[-1])
+        # print(test2005_2022.head())
         print(f"Количество дней с пропущенными данными: {lenth_of_list_of_missing_dates}")
         pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
         # self.T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
@@ -130,31 +130,44 @@ class Processing:
         interesting_heating_period["data"] = pd.to_datetime(interesting_heating_period["data"])
         interesting_heating_period = interesting_heating_period.set_index("data")
         ds_real_end_heating_date = interesting_heating_period.loc[help_end_heating_date:prepare_end_heating_date]
-        #ds_real_end_heating_date = interesting_heating_period.query("@help_end_heating_date < 'data'<  @prepare_end_heating_date")
         add_ds_real_end_heating_date = ds_real_end_heating_date.loc[(ds_real_end_heating_date.average_five_day_temperature > 8)].reset_index()
-        real_end_heating_date = add_ds_real_end_heating_date.loc[0,'data']
-        #real_end_heating_date_with_desc = f"Дата начала отопительного периода согласно законодательству:" \
-        #                                  f"{real_end_heating_date}"
+        real_end_heating_date = pd.to_datetime(add_ds_real_end_heating_date.loc[0, 'data'])
+        real_end_heating_date = real_end_heating_date.date()
 
-        #print(interesting_heating_period)
-        #print(interesting_heating_period.info())
-        #print(ds_real_start_heating_date)
-        #print(real_start_heating_date_with_desc)
-        print(ds_real_end_heating_date)
-        #print(type(help_end_heating_date))
-        #print(type(prepare_end_heating_date))
-        print(help_end_heating_date)
-        print(prepare_end_heating_date)
-        print(add_ds_real_end_heating_date)
-        print(real_end_heating_date)
+        real_end_heating_date_with_desc = f"Дата окончания отопительного периода согласно законодательству:" \
+                                          f"{real_end_heating_date}"
+        duration_heating_period = real_end_heating_date - real_start_heating_date
+        duration_heating_period_with_desc = f"Продолжительность отопительного периода {duration_heating_period} дней"
+        ds_duration_heating_period = interesting_heating_period.loc[real_start_heating_date:real_end_heating_date]
 
+        average_temperature_heating_period = ds_duration_heating_period["T"].mean()
+        average_temperature_heating_period = round(average_temperature_heating_period, 2)
+        average_temperature_heating_period_with_desc = f"Средняя температура отпительного периода равна " \
+                                                       f"{average_temperature_heating_period} градусов"
+        gsop = (18 - average_temperature_heating_period) * duration_heating_period.days
+        gsop = round(gsop, 0)
+        gsop_with_desc = f"Реальные градусосутки отопительного периода равны {gsop} "
 
+        print(interesting_heating_period)
+        # print(interesting_heating_period.info())
+        # print(ds_real_start_heating_date)
+        # print(type(real_start_heating_date))
+        # print(ds_real_end_heating_date)
+        # print(help_end_heating_date)
+        # print(prepare_end_heating_date)
+        # print(add_ds_real_end_heating_date)
+        # print(real_end_heating_date)
+        # print(type(real_end_heating_date))
+        print(duration_heating_period_with_desc)
+        print(ds_duration_heating_period)
+        print(real_start_heating_date_with_desc)
+        print(real_end_heating_date_with_desc)
+        print(average_temperature_heating_period_with_desc)
+        print(gsop_with_desc)
 
-
-        #print(list_temp)
-        #print(list_five_temp)
-        #print(mean_five_temp)
-        #print(day_date_plus_temp.info())
-        #print(str(start_heating_date))
-        #print(str(end_heating_date))
-
+        # print(list_temp)
+        # print(list_five_temp)
+        # print(mean_five_temp)
+        # print(day_date_plus_temp.info())
+        # print(str(start_heating_date))
+        # print(str(end_heating_date))
