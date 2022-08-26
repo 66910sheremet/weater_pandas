@@ -13,9 +13,10 @@ pd.options.mode.chained_assignment = None
 
 class Processing:
 
-    def __init__(self, t_mean_day=0, average_monthly_temperature=0):
+    def __init__(self, t_mean_day=0, average_monthly_temperature=0, ds_duration_heating_period=0):
         self.t_mean_day = t_mean_day
         self.average_monthly_temperature = average_monthly_temperature
+        self.ds_duration_heating_period = ds_duration_heating_period
 
     def preliminary_processing(self):
         # link = input("Введите ссылку на интересующий файл:")
@@ -65,7 +66,6 @@ class Processing:
         # print(T_meanday.head())
         print(self.t_mean_day["T"])
 
-
         # print(T_meanday.head())
         print(start_chain_with_desc)
         print(end_chain_with_desc)
@@ -100,8 +100,10 @@ class Processing:
 
     def heating_period_treatment(self):
         day_date_plus_temp = pd.DataFrame(self.t_mean_day["T"])
-        prepare_start_heating_date = pd.to_datetime(input("Введите начальную дату обработки отопительного периода в формате гггг-мм-дд:"))
-        prepare_end_heating_date = pd.to_datetime(input("Введите конечную дату обработки отопительного периода в формате гггг-мм-дд:"))
+        prepare_start_heating_date = pd.to_datetime(input(
+            "Введите начальную дату обработки отопительного периода в формате гггг-мм-дд:"))
+        prepare_end_heating_date = pd.to_datetime(input(
+            "Введите конечную дату обработки отопительного периода в формате гггг-мм-дд:"))
         # исследуемый диапазон измерений отопительного периода (по умолчанию с 1 сентября по 1 июня)
         interesting_heating_period = day_date_plus_temp.loc[prepare_start_heating_date:prepare_end_heating_date]
         interesting_heating_period.reset_index(inplace=True)
@@ -121,7 +123,8 @@ class Processing:
 
         interesting_heating_period["average_five_day_temperature"] = mean_five_temp
 
-        ds_real_start_heating_date = interesting_heating_period.loc[(interesting_heating_period.average_five_day_temperature < 8)]
+        ds_real_start_heating_date = interesting_heating_period.loc[(
+                interesting_heating_period.average_five_day_temperature < 8)]
         real_start_heating_date = ds_real_start_heating_date.iloc[4, 0]
         real_start_heating_date_with_desc = f"Дата начала отопительного периода согласно законодательству:" \
                                             f"{real_start_heating_date}"
@@ -130,7 +133,8 @@ class Processing:
         interesting_heating_period["data"] = pd.to_datetime(interesting_heating_period["data"])
         interesting_heating_period = interesting_heating_period.set_index("data")
         ds_real_end_heating_date = interesting_heating_period.loc[help_end_heating_date:prepare_end_heating_date]
-        add_ds_real_end_heating_date = ds_real_end_heating_date.loc[(ds_real_end_heating_date.average_five_day_temperature > 8)].reset_index()
+        add_ds_real_end_heating_date = ds_real_end_heating_date.loc[(
+                ds_real_end_heating_date.average_five_day_temperature > 8)].reset_index()
         real_end_heating_date = pd.to_datetime(add_ds_real_end_heating_date.loc[0, 'data'])
         real_end_heating_date = real_end_heating_date.date()
 
@@ -138,17 +142,28 @@ class Processing:
                                           f"{real_end_heating_date}"
         duration_heating_period = real_end_heating_date - real_start_heating_date
         duration_heating_period_with_desc = f"Продолжительность отопительного периода {duration_heating_period} дней"
-        ds_duration_heating_period = interesting_heating_period.loc[real_start_heating_date:real_end_heating_date]
+        self.ds_duration_heating_period = interesting_heating_period.loc[real_start_heating_date:real_end_heating_date]
 
-        average_temperature_heating_period = ds_duration_heating_period["T"].mean()
+        average_temperature_heating_period = self.ds_duration_heating_period["T"].mean()
         average_temperature_heating_period = round(average_temperature_heating_period, 2)
         average_temperature_heating_period_with_desc = f"Средняя температура отпительного периода равна " \
                                                        f"{average_temperature_heating_period} градусов"
         gsop = (18 - average_temperature_heating_period) * duration_heating_period.days
         gsop = round(gsop, 0)
         gsop_with_desc = f"Реальные градусосутки отопительного периода равны {gsop} "
+        min_temp_day_of_heat_temp = self.ds_duration_heating_period['T'].min()
+        min_temp_day_of_heat_temp_with_desc = f"Минимальная температура наиболее холодных суток " \
+                                              f"отопительного периода: {min_temp_day_of_heat_temp}"
+        min_temp_five_day_of_heat_temp = self.ds_duration_heating_period['average_five_day_temperature'].min()
+        min_temp_five_day_of_heat_temp_with_desc = f"Минимальная температура наиболее холодной пятидневки " \
+                                                   f"отопительного периода: {min_temp_five_day_of_heat_temp}"
+        str_with_min_temp_day_of_heat_temp = self.ds_duration_heating_period[self.ds_duration_heating_period['T'] ==
+                                                                             self.ds_duration_heating_period['T'].min()]
+        str_with_min_temp_five_day_of_heat_temp = self.ds_duration_heating_period[
+                                                  self.ds_duration_heating_period.average_five_day_temperature ==
+                                                  self.ds_duration_heating_period.average_five_day_temperature.min()]
 
-        print(interesting_heating_period)
+        # print(interesting_heating_period)
         # print(interesting_heating_period.info())
         # print(ds_real_start_heating_date)
         # print(type(real_start_heating_date))
@@ -158,10 +173,15 @@ class Processing:
         # print(add_ds_real_end_heating_date)
         # print(real_end_heating_date)
         # print(type(real_end_heating_date))
-        print(duration_heating_period_with_desc)
-        print(ds_duration_heating_period)
+
+        print(self.ds_duration_heating_period)
         print(real_start_heating_date_with_desc)
         print(real_end_heating_date_with_desc)
+        print(duration_heating_period_with_desc)
+        print(min_temp_day_of_heat_temp_with_desc)
+        print(str_with_min_temp_day_of_heat_temp)
+        print(min_temp_five_day_of_heat_temp_with_desc)
+        print(str_with_min_temp_five_day_of_heat_temp)
         print(average_temperature_heating_period_with_desc)
         print(gsop_with_desc)
 
@@ -171,3 +191,9 @@ class Processing:
         # print(day_date_plus_temp.info())
         # print(str(start_heating_date))
         # print(str(end_heating_date))
+
+    def save_ds_duration_heating_period(self):
+        self.ds_duration_heating_period = pd.DataFrame(self.ds_duration_heating_period)
+        name_of_ds_duration_heating_period = input("Введите название файла для сохранения:")
+        self.ds_duration_heating_period.to_excel(f"{name_of_ds_duration_heating_period}.xlsx")
+        print("Файл сохранен!")

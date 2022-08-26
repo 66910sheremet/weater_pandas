@@ -26,5 +26,9 @@ elif choice == "4":
         print("New operations")
 elif choice == "5":
     work.heating_period_treatment()
+    #print("Для сохранения датасета реального отопительного периода, нажмите 1")
+    #ch_ds_hp = input("Enter your choice:")
+    #if ch_ds_hp == '1':
+    #    work.save_ds_duration_heating_period()
 
 
