@@ -18,12 +18,75 @@ class Processing:
         self.average_monthly_temperature = average_monthly_temperature
         self.ds_duration_heating_period = ds_duration_heating_period
 
-    def preliminary_processing(self):
+    def preliminary_processing_excel(self, link_input):
         # link = input("Введите ссылку на интересующий файл:")
-        link_input = input("Введите ссылку на интересующий файл:")
+        # link_input = input("Введите ссылку на интересующий файл:")
         link = link_input.replace("\\", "/")
         # open file for reading
         data = pd.read_excel(link)
+        # pick up 2 columns with date and temperature
+        t2005_2022 = data[["data", "T"]]
+        # test file
+        test2005_2022 = t2005_2022
+        # we bring the column with dates into the dataframe format and immediately delete the hours and minutes
+        test2005_2022["data"] = pd.to_datetime(test2005_2022["data"], format="%d.%m.%Y %H:%M").dt.date
+        # calculate the average temperature by day / automatic sorting by date from the earliest
+        self.t_mean_day = test2005_2022.groupby("data").agg({"T": "mean"})
+        # print(test2005_2022.head())
+
+        start_chain = self.t_mean_day.index[0]  # start date of the study period
+        end_chain = self.t_mean_day.index[-1] # end date of the study period
+        start_chain_with_desc = f"Начальная дата исследуемого периода: {self.t_mean_day.index[0]}"
+        end_chain_with_desc = f"Конечная дата исследуемого периода: {self.t_mean_day.index[-1]}"
+        days_with_temp = (end_chain - start_chain)  # number of days between start and end dates
+        days_with_temp_with_desc = f"Количество дней между начальной и конечной датами: {days_with_temp.days} дней"
+        total_cols = len(self.t_mean_day)  # actual number of days with temperature data
+        total_cols_with_desc = f"Фактическое количество дней с данными по температуре: {total_cols} дней"
+        # number of missed days in the time sequence
+        numbers_of_missing_days = (end_chain - start_chain).days - len(self.t_mean_day)
+        numbers_of_missing_days_with_desc = f"Количество пропущенных дней временной последовательности " \
+                                        f"{numbers_of_missing_days}"
+
+        # t = t_mean_day["T"].values.tolist() лист со значениями температуры (пока не нужен)
+        self.t_mean_day["0"] = self.t_mean_day.index
+        list_of_dates = pd.DataFrame(self.t_mean_day["0"]).reset_index()
+        list_of_dates = list_of_dates.drop(columns="data")
+        list_of_dates["0"] = pd.to_datetime(list_of_dates["0"])
+        fact_list_of_dates = pd.date_range(start=start_chain, end=end_chain)
+        # fact_list_of_dates1 = fact_list_of_dates1.loc[~fact_list_of_dates1["0"].isin(list_of_dates)]
+        # start = time.time()
+        missing_dates = fact_list_of_dates.difference(list_of_dates["0"])
+        missing_dates = pd.DatetimeIndex(missing_dates).sort_values()
+        # delete an already unnecessary column with dates
+        list_of_missing_dates = list(missing_dates.astype(str).tolist())
+        lenth_of_list_of_missing_dates = len(list_of_missing_dates)
+        # print(fact_list_of_dates)
+        # checking that all values in an index are the same
+        # list_of_dates = set(list_of_dates)
+        # print(T_meanday.head())
+        print(self.t_mean_day["T"])
+
+        # print(T_meanday.head())
+        print(start_chain_with_desc)
+        print(end_chain_with_desc)
+        print(days_with_temp_with_desc)
+        print(total_cols_with_desc)
+        print(numbers_of_missing_days_with_desc)
+
+        # test2005_2022.sort_index(inplace=True)
+        # print(test2005_2022.index[-1])
+        # print(test2005_2022.head())
+        print(f"Количество дней с пропущенными данными: {lenth_of_list_of_missing_dates}")
+        pprint.pprint(f"Список дат с отсутствующими данными по температуре: {list_of_missing_dates}")
+        # self.T_meanday.head().plot(kind = "bar", subplots = False, sharex = False, figsize=(40, 20))
+        # plt.show()
+
+    def preliminary_processing_csv(self, link_input):
+        # link = input("Введите ссылку на интересующий файл:")
+        # link_input = input("Введите ссылку на интересующий файл:")
+        link = link_input.replace("\\", "/")
+        # open file for reading
+        data = pd.read_csv(link)
         # pick up 2 columns with date and temperature
         t2005_2022 = data[["data", "T"]]
         # test file
