@@ -6,15 +6,11 @@ from logic import Processing
 
 r"C:\Users\Eugene\Downloads\data1.xls"
 
+
 work = Processing()
+work.preliminary_processing()
+
 while True:
-    link_input = input("Введите ссылку на интересующий файл:")
-    if link_input.endswith('.xls'):
-        work.preliminary_processing_excel(link_input)
-    elif link_input.endswith('.csv'):
-        work.preliminary_processing_csv(link_input)
-    else:
-        print(r'Введите ссылку в формате C:\Users\Eugene\Downloads\data1.xls или ..\data1.csv')
     print("Для сохрания датасета с усредненной температурой, введите 1")
     print("Для сохранения датасета из дат без данных, введите 2")
     print("Для дальнейшей обработки введите 3")
@@ -33,9 +29,12 @@ while True:
             print("New operations")
     elif choice == "5":
         work.heating_period_treatment()
-        #print("Для сохранения датасета реального отопительного периода, нажмите 1")
-        #ch_ds_hp = input("Enter your choice:")
-        #if ch_ds_hp == '1':
-        #    work.save_ds_duration_heating_period()
+        print("Для сохранения датасета реального отопительного периода, нажмите 1")
+        print("Для сохранения данных отопительного периода, нажмите 2")
+        ch_ds_hp = input("Enter your choice:")
+        if ch_ds_hp == '1':
+            work.save_ds_duration_heating_period()
+        elif ch_ds_hp == '2':
+            work.save_data_about_heating_period()
 
 
