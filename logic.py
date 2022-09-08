@@ -260,3 +260,4 @@ class Processing:
         name_of_ds_duration_heating_period = input("Введите название файла для сохранения:")
         self.ds_duration_heating_period.to_excel(f"{name_of_ds_duration_heating_period}.xlsx")
         print("Файл сохранен!")
+#end of the programm
